@@ -16,10 +16,8 @@ $admin_user_auth_token = '<admin authtoken>';
 $admin_username = '@<user>:<org>';
 $admin_password = '<password>';
 
-# User to create
-$new_user_first_name = 'Test';
-$new_user_last_name = 'User';
-$new_user_tag_slug = 'test1234';
+# User to get authtoken
+$user_tag_slug = '@test1234';
 
 try {
   $loginResponse = $client->post($forsta_api_path . 'login/', [
@@ -38,26 +36,26 @@ echo("Successfully connected\n");
 $loginResponseJson = json_decode($loginResponse->getBody()->getContents());
 $jwt = 'JWT ' . $loginResponseJson->token;
 
-# use admin jwt to create a new user
+# use admin jwt to get the user id
 try {
-  $createUserResponse = $client->post($forsta_api_path . 'user/', [
+  $getUserResponse = $client->post($forsta_api_path . 'tagmath/', [
       'headers' => [
           'Authorization' => $jwt
       ],
       'json' =>  [
-          'first_name' => $new_user_first_name,
-          'last_name' => $new_user_last_name,
-          'tag_slug' => $new_user_tag_slug,
+          "expressions" => [$user_tag_slug]
       ]
   ]);
 }
 catch (Exception $e) {
-  exit("Failed to create user: " . $e->getMessage());
+  exit("Failed to get user ids: " . $e->getMessage());
 }
 
-echo("User created\n");
-$createUserResponseJson = json_decode($createUserResponse->getBody()->getContents());
-$newUserId = $createUserResponseJson->id;
+echo("User Id Retrieved\n");
+$getUserResponseJson = json_decode($getUserResponse->getBody()->getContents());
+
+# Note this assumes the tag given results in one and only one userid
+$newUserId = $getUserResponseJson->results[0]->userids[0];
 
 # create a new auth token for the user we just created
 $tokenDescription = 'Auth Token Description';
@@ -76,9 +74,9 @@ catch (Exception $e) {
   exit("Failed to create user authtoken: " . $e->getMessage());
 }
 
-$createUserResponseJson = json_decode($postAuthTokenResponse->getBody()->getContents());
+$getUserResponseJson = json_decode($postAuthTokenResponse->getBody()->getContents());
 
 echo("User authtoken created. Please save the following:\n");
-echo($createUserResponseJson->token . "\n");
+echo($getUserResponseJson->token . "\n");
 
 ?>
