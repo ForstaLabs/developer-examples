@@ -83,7 +83,7 @@ Once configured this code will take the following steps:
 In the embed_client.php css visability is used to hide and display the messenger as needed.
 To control the messenger in a different way you need to modify:
 
-- <div id="my-messenger" style="width: 80%; height: 80%; visability: none"></div>
+- ```<div id="my-messenger" style="width: 80%; height: 80%; visability: none"></div>```
 - function displayMessenger()
 
 Additionally there are multiple event listeners that allow you to customize how your system responds to
